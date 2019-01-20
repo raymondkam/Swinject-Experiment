@@ -9,45 +9,40 @@
 import Foundation
 import Swinject
 
-class MyRequiredObjectADependencies: RequiredObjectADependencies {
-    var key: Key
-
-    init(key: Key) {
-        self.key = key
-    }
-
-    func assemble(container: Container) {
-        container.register(RequiredObjectADependencies.self) { [self] _ in
-            return self
-        }
-        container.register(Key.self) { [key] _ in
-            return key
-        }
-    }
-}
-
 class MyDependencyModule {
 
     var assembler: Assembler
 
     init() {
-//        let requiredAssemblies: [Assembly] = [
-//            MyRequiredObjectADependencies(key: Key(value: "My Key"))
-//        ]
-//        let requiredDependenciesAssembler = Assembler(requiredAssemblies)
-        let objectADependencies = MyRequiredObjectADependencies(key: Key(value: "My Key"))
+        let appContainer = Container()
+        MyDependencyModule.attachAppDependencies(to: appContainer)
+
         let finalAssemblies: [Assembly] = [
-            objectADependencies,
-            ObjectAAssembly(),
-//            ObjectAAssembly(requiredDependencies: { () -> RequiredObjectADependencies in
-//                return objectADependencies
-//            }),
-            ObjectBAssembly(),
-            ObjectCAssembly()
+            ObjectAAssembly(
+                requiredDependencies: RequiredObjectADependencies(
+                    key: appContainer.resolve(Key.self)!,
+                    reporter: appContainer.resolve(Reporter.self)!,
+                    objectC: appContainer.resolve(ObjectC.self)!
+                )
+            ),
+            ObjectBAssembly()
         ]
-        let finalAssembler = Assembler(finalAssemblies)
+        let finalAssembler = Assembler(finalAssemblies, container: appContainer)
 
         assembler = finalAssembler
+    }
+
+    static func attachAppDependencies(to container: Container) {
+        container.register(Logger.self) { _ in
+            return ErrorLogger()
+        }
+        container.register(Reporter.self) { resolver in
+            return Reporter(logger: resolver.resolve(Logger.self)!)
+        }
+        container.register(Key.self) { _ in
+            return Key(value: "My App Key")
+        }
+        ObjectCAssembly().assemble(container: container)
     }
 
 }

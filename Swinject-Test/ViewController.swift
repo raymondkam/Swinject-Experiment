@@ -14,10 +14,11 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         objectA = appDelegate.resolver.resolve(ObjectA.self)
+        print(objectA.key.value)
+        objectA.reporter.logger.log(message: "Hello world!")
     }
 
 

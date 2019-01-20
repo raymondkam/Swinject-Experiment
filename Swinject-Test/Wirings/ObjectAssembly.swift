@@ -11,22 +11,50 @@ import Swinject
 
 protocol RequiredDependencies: Assembly {}
 
-protocol RequiredObjectADependencies: RequiredDependencies {
-    var key: Key { get }
+class RequiredObjectADependencies: RequiredDependencies {
+    var key: Key
+    var reporter: Reporter
+    var objectC: ObjectC
+
+    init(key: Key, reporter: Reporter, objectC: ObjectC) {
+        self.key = key
+        self.reporter = reporter
+        self.objectC = objectC
+    }
+
+    func assemble(container: Container) {
+        container.register(RequiredObjectADependencies.self) { [self] _ in
+            return self
+        }
+        container.register(Key.self) { [key] _ in
+            return key
+        }
+        container.register(Reporter.self) { [reporter] _ in
+            return reporter
+        }
+        container.register(ObjectC.self) { [objectC] _ in
+            return objectC
+        }
+    }
 }
 
 final class ObjectAAssembly: Assembly {
 
-//    let requiredDependencies: () -> RequiredDependencies
-//
-//    init(requiredDependencies: @escaping () -> RequiredObjectADependencies) {
-//        self.requiredDependencies = requiredDependencies
-//    }
+    let requiredDependencies: RequiredObjectADependencies
+
+    init(requiredDependencies: RequiredObjectADependencies) {
+        self.requiredDependencies = requiredDependencies
+    }
 
     func assemble(container: Container) {
+        requiredDependencies.assemble(container: container)
         container.register(ObjectA.self) { resolver in
-            let requiredDependenices = resolver.resolve(RequiredObjectADependencies.self)!
-            return ObjectA(key: requiredDependenices.key)
+            let requiredDependencies = resolver.resolve(RequiredObjectADependencies.self)!
+            return ObjectA(
+                key: requiredDependencies.key,
+                reporter: requiredDependencies.reporter,
+                objectC: requiredDependencies.objectC
+            )
         }
     }
 }
