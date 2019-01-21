@@ -11,6 +11,6 @@
 #endif
 
 
-FOUNDATION_EXPORT double Pods_Swinject_TestVersionNumber;
-FOUNDATION_EXPORT const unsigned char Pods_Swinject_TestVersionString[];
+FOUNDATION_EXPORT double Pods_Swinject_ExperimentVersionNumber;
+FOUNDATION_EXPORT const unsigned char Pods_Swinject_ExperimentVersionString[];
 
