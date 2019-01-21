@@ -23,9 +23,6 @@ class RequiredObjectADependencies: RequiredDependencies {
     }
 
     func assemble(container: Container) {
-        container.register(RequiredObjectADependencies.self) { [key, reporter, objectC] _ in
-            return RequiredObjectADependencies(key: key, reporter: reporter, objectC: objectC)
-        }
         container.register(Key.self) { [key] _ in
             return key
         }
@@ -49,21 +46,40 @@ final class ObjectAAssembly: Assembly {
     func assemble(container: Container) {
         requiredDependencies.assemble(container: container)
         container.register(ObjectA.self) { resolver in
-            let requiredDependencies = resolver.resolve(RequiredObjectADependencies.self)!
             return ObjectA(
-                key: requiredDependencies.key,
-                reporter: requiredDependencies.reporter,
-                objectC: requiredDependencies.objectC
+                key: resolver.resolve(Key.self)!,
+                reporter: resolver.resolve(Reporter.self)!,
+                objectC: resolver.resolve(ObjectC.self)!
             )
+        }
+    }
+}
+
+class RequiredObjectBDependencies: RequiredDependencies {
+    var key: Key
+
+    init(key: Key) {
+        self.key = key
+    }
+
+    func assemble(container: Container) {
+        container.register(Key.self) { [key] _ in
+            return key
         }
     }
 }
 
 final class ObjectBAssembly: Assembly {
 
+    let requiredDependencies: RequiredObjectBDependencies
+
+    init(requiredDependencies: RequiredObjectBDependencies) {
+        self.requiredDependencies = requiredDependencies
+    }
+
     func assemble(container: Container) {
         container.register(ObjectB.self) { resolver in
-            return ObjectB()
+            return ObjectB(key: resolver.resolve(Key.self)!)
         }
     }
 }

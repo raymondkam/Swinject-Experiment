@@ -25,7 +25,9 @@ class MyDependencyModule {
                     objectC: appContainer.resolve(ObjectC.self)!
                 )
             ),
-            ObjectBAssembly()
+            ObjectBAssembly(requiredDependencies:
+                RequiredObjectBDependencies(key: appContainer.resolve(Key.self)!)
+            )
         ]
         let finalAssembler = Assembler(finalAssemblies, container: appContainer)
 

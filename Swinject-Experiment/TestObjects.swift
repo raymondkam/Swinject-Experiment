@@ -21,7 +21,11 @@ class ObjectA {
 }
 
 class ObjectB {
-    init() {}
+    let key: Key
+
+    init(key: Key) {
+        self.key = key
+    }
 }
 
 class ObjectC {
