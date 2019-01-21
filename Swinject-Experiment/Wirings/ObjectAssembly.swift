@@ -12,9 +12,9 @@ import Swinject
 protocol RequiredDependencies: Assembly {}
 
 class DependencyProvider<T> {
-    let factory: () -> T
+    let factory: (Container) -> T
 
-    init(factory: @escaping () -> T) {
+    init(factory: @escaping (Container) -> T) {
         self.factory = factory
     }
 }
@@ -31,15 +31,8 @@ class RequiredObjectADependencies: RequiredDependencies {
     }
 
     func assemble(container: Container) {
-        container.register(Key.self) { [key] _ in
-            print("create key for object a")
-            return key.factory()
-        }
-        container.register(Reporter.self) { [reporter] _ in
-            return reporter.factory()
-        }
-        container.register(ObjectC.self) { [objectC] _ in
-            return objectC.factory()
+        container.register(RequiredObjectADependencies.self) { [key, reporter, objectC] _ in
+            return RequiredObjectADependencies(key: key, reporter: reporter, objectC: objectC)
         }
     }
 }
@@ -55,11 +48,12 @@ final class ObjectAAssembly: Assembly {
     func assemble(container: Container) {
         requiredDependencies.assemble(container: container)
         container.register(ObjectA.self) { resolver in
+            let dependencies = resolver.resolve(RequiredObjectADependencies.self)!
             print("create object A")
             return ObjectA(
-                key: resolver.resolve(Key.self)!,
-                reporter: resolver.resolve(Reporter.self)!,
-                objectC: resolver.resolve(ObjectC.self)!
+                key: dependencies.key.factory(container),
+                reporter: dependencies.reporter.factory(container),
+                objectC: dependencies.objectC.factory(container)
             )
         }
     }
@@ -75,7 +69,7 @@ class RequiredObjectBDependencies: RequiredDependencies {
     func assemble(container: Container) {
         container.register(Key.self) { [key] _ in
             print("create for object b")
-            return key.factory()
+            return key.factory(container)
         }
     }
 }

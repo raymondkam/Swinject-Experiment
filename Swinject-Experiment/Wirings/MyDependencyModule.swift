@@ -14,26 +14,26 @@ class MyDependencyModule {
     var assembler: Assembler
 
     init() {
-        let dependenciesContainer = Container()
-        MyDependencyModule.attachDependencies(to: dependenciesContainer)
+        let appContainer = Container()
+        MyDependencyModule.attachDependencies(to: appContainer)
 
         let finalAssemblies: [Assembly] = [
             ObjectAAssembly(
-                requiredDependencies: RequiredObjectADependencies(key: DependencyProvider<Key>(factory: {
-                    return dependenciesContainer.resolve(Key.self)!
-                }), reporter: DependencyProvider<Reporter>(factory: {
-                    return dependenciesContainer.resolve(Reporter.self)!
-                }), objectC: DependencyProvider<ObjectC>(factory: {
-                    return dependenciesContainer.resolve(ObjectC.self)!
+                requiredDependencies: RequiredObjectADependencies(key: DependencyProvider<Key>(factory: { container in
+                    return container.resolve(Key.self)!
+                }), reporter: DependencyProvider<Reporter>(factory: { container in
+                    return container.resolve(Reporter.self)!
+                }), objectC: DependencyProvider<ObjectC>(factory: { container in
+                    return container.resolve(ObjectC.self)!
                 }))
             ),
             ObjectBAssembly(
-                requiredDependencies: RequiredObjectBDependencies(key: DependencyProvider<Key>(factory: { () -> Key in
-                    return dependenciesContainer.resolve(Key.self)!
+                requiredDependencies: RequiredObjectBDependencies(key: DependencyProvider<Key>(factory: { container in
+                    return container.resolve(Key.self)!
                 }))
             )
         ]
-        let finalAssembler = Assembler(finalAssemblies)
+        let finalAssembler = Assembler(finalAssemblies, container: appContainer)
 
         assembler = finalAssembler
     }
