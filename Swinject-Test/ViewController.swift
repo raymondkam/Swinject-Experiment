@@ -11,14 +11,19 @@ import UIKit
 class ViewController: UIViewController {
 
     var objectA: ObjectA!
+    var objectA2: ObjectA!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        objectA = appDelegate.resolver.resolve(ObjectA.self)
+        objectA = appDelegate.resolver.resolve(ObjectA.self)!
         print(objectA.key.value)
         objectA.reporter.logger.log(message: "Hello world!")
+
+        objectA2 = appDelegate.resolver.resolve(ObjectA.self)!
+        print(objectA2.key.value)
+        objectA2.reporter.logger.log(message: "Hello world 2!")
     }
 
 

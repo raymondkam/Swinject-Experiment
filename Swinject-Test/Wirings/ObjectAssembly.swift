@@ -23,8 +23,8 @@ class RequiredObjectADependencies: RequiredDependencies {
     }
 
     func assemble(container: Container) {
-        container.register(RequiredObjectADependencies.self) { [self] _ in
-            return self
+        container.register(RequiredObjectADependencies.self) { [key, reporter, objectC] _ in
+            return RequiredObjectADependencies(key: key, reporter: reporter, objectC: objectC)
         }
         container.register(Key.self) { [key] _ in
             return key
