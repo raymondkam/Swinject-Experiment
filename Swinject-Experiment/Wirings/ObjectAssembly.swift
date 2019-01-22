@@ -12,16 +12,17 @@ import Swinject
 protocol RequiredDependencies: Assembly {}
 
 class Registry<T> {
-    let dependencyResolver: Resolver
+    let resolver: Resolver
 
-    init(dependencyResolver: Resolver) {
-        self.dependencyResolver = dependencyResolver
+    init(_ resolver: Resolver) {
+        self.resolver = resolver
     }
 
-    func register(to container: Container) {
-        container.register(T.self) { [dependencyResolver] _ in
-            return dependencyResolver.resolve(T.self)!
+    func forwardRegistration(to container: Container, scope: ObjectScope = .graph) {
+        container.register(T.self) { [resolver] _ in
+            return resolver.resolve(T.self)!
         }
+        .inObjectScope(scope)
     }
 }
 
@@ -60,9 +61,9 @@ final class ObjectAAssembly: Assembly {
     }
 
     func assemble(container: Container) {
-        keyRegistry.register(to: container)
-        reporterRegistry.register(to: container)
-        objectCRegistry.register(to: container)
+        keyRegistry.forwardRegistration(to: container)
+        reporterRegistry.forwardRegistration(to: container)
+        objectCRegistry.forwardRegistration(to: container)
         container.register(ObjectA.self) { resolver in
             print("create object A")
             return ObjectA(
@@ -83,7 +84,7 @@ final class ObjectBAssembly: Assembly {
     }
 
     func assemble(container: Container) {
-        keyRegistry.register(to: container)
+        keyRegistry.forwardRegistration(to: container)
         container.register(ObjectB.self) { resolver in
             print("create object b")
             return ObjectB(key: resolver.resolve(Key.self)!)

@@ -19,11 +19,11 @@ class MyDependencyModule {
 
         let finalAssemblies: [Assembly] = [
             ObjectAAssembly(
-                keyRegistry: Registry<Key>(dependencyResolver: dependenciesContainer),
-                reporterRegistry: Registry<Reporter>(dependencyResolver: dependenciesContainer),
-                objectCRegistry: Registry<ObjectC>(dependencyResolver: dependenciesContainer)
+                keyRegistry: Registry<Key>(dependenciesContainer),
+                reporterRegistry: Registry<Reporter>(dependenciesContainer),
+                objectCRegistry: Registry<ObjectC>(dependenciesContainer)
             ),
-            ObjectBAssembly(keyRegistry: Registry<Key>(dependencyResolver: dependenciesContainer))
+            ObjectBAssembly(keyRegistry: Registry<Key>(dependenciesContainer))
         ]
         let finalAssembler = Assembler(finalAssemblies)
 
