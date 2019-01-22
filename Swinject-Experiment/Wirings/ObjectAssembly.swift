@@ -59,16 +59,17 @@ final class ObjectAAssembly: Assembly {
 
 final class ObjectBAssembly: Assembly {
 
-    let keyResolver: DependencyResolver<Key>
+    let keyRegistration: (Container) -> ()
 
-    init(keyResolver: DependencyResolver<Key>) {
-        self.keyResolver = keyResolver
+    init(keyRegistration: @escaping (Container) -> ()) {
+        self.keyRegistration = keyRegistration
     }
 
     func assemble(container: Container) {
-        container.register(ObjectB.self) { [keyResolver] resolver in
+        keyRegistration(container)
+        container.register(ObjectB.self) { resolver in
             print("create object b")
-            return ObjectB(key: keyResolver.value)
+            return ObjectB(key: resolver.resolve(Key.self)!)
         }
     }
 }

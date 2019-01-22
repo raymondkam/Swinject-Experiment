@@ -18,12 +18,16 @@ class MyDependencyModule {
         MyDependencyModule.attachDependencies(to: dependenciesContainer)
 
         let finalAssemblies: [Assembly] = [
-            ObjectAAssembly(
-                keyResolver: DependencyResolver<Key>(dependenciesContainer),
-                reporterResolver: DependencyResolver<Reporter>(dependenciesContainer),
-                objectCResolver: DependencyResolver<ObjectC>(dependenciesContainer)
-            ),
-            ObjectBAssembly(keyResolver: DependencyResolver<Key>(dependenciesContainer))
+//            ObjectAAssembly(
+//                keyResolver: DependencyResolver<Key>(dependenciesContainer),
+//                reporterResolver: DependencyResolver<Reporter>(dependenciesContainer),
+//                objectCResolver: DependencyResolver<ObjectC>(dependenciesContainer)
+//            ),
+            ObjectBAssembly(keyRegistration: { (container) in
+                container.register(Key.self, factory: { _ in
+                    return dependenciesContainer.resolve(Key.self)!
+                })
+            })
         ]
         let finalAssembler = Assembler(finalAssemblies)
 
