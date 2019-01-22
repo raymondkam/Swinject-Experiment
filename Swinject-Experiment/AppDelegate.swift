@@ -13,12 +13,12 @@ import Swinject
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    var assembler: Assembler!
-    var resolver: Resolver!
+    var assembler: Assembler?
+    var resolver: Resolver?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         assembler = MyDependencyModule().assembler
-        resolver = assembler.resolver
+        resolver = assembler!.resolver
         return true
     }
 
