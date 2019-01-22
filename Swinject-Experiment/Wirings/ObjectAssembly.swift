@@ -22,7 +22,7 @@ class DependencyProvider<T> {
 class DependencyResolver<T> {
     private let resolver: Resolver
 
-    init(resolver: Resolver) {
+    init(_ resolver: Resolver) {
         self.resolver = resolver
     }
 
@@ -31,74 +31,44 @@ class DependencyResolver<T> {
     }
 }
 
-class RequiredObjectADependencies: RequiredDependencies {
-    var key: DependencyProvider<Key>
-    var reporter: DependencyProvider<Reporter>
-    var objectC: DependencyProvider<ObjectC>
-
-    init(key: DependencyProvider<Key>, reporter: DependencyProvider<Reporter>, objectC: DependencyProvider<ObjectC>) {
-        self.key = key
-        self.reporter = reporter
-        self.objectC = objectC
-    }
-
-    func assemble(container: Container) {
-        container.register(RequiredObjectADependencies.self) { [key, reporter, objectC] _ in
-            return RequiredObjectADependencies(key: key, reporter: reporter, objectC: objectC)
-        }
-    }
-}
-
 final class ObjectAAssembly: Assembly {
 
-    let requiredDependencies: RequiredObjectADependencies
+    let keyResolver: DependencyResolver<Key>
+    let reporterResolver: DependencyResolver<Reporter>
+    let objectCResolver: DependencyResolver<ObjectC>
 
-    init(requiredDependencies: RequiredObjectADependencies) {
-        self.requiredDependencies = requiredDependencies
+    init(keyResolver: DependencyResolver<Key>,
+         reporterResolver: DependencyResolver<Reporter>,
+         objectCResolver: DependencyResolver<ObjectC>) {
+        self.keyResolver = keyResolver
+        self.reporterResolver = reporterResolver
+        self.objectCResolver = objectCResolver
     }
 
     func assemble(container: Container) {
-        requiredDependencies.assemble(container: container)
-        container.register(ObjectA.self) { resolver in
-            let dependencies = resolver.resolve(RequiredObjectADependencies.self)!
+        container.register(ObjectA.self) { [keyResolver, reporterResolver, objectCResolver] resolver in
             print("create object A")
             return ObjectA(
-                key: dependencies.key.factory(),
-                reporter: dependencies.reporter.factory(),
-                objectC: dependencies.objectC.factory()
+                key: keyResolver.value,
+                reporter: reporterResolver.value,
+                objectC: objectCResolver.value
             )
-        }
-    }
-}
-
-class ObjectBDependencies: RequiredDependencies {
-    var keyResolver: DependencyResolver<Key>
-
-    init(keyResolver: DependencyResolver<Key>) {
-        self.keyResolver = keyResolver
-    }
-
-    func assemble(container: Container) {
-        container.register(ObjectBDependencies.self) { [keyResolver] _ in
-            return ObjectBDependencies(keyResolver: keyResolver)
         }
     }
 }
 
 final class ObjectBAssembly: Assembly {
 
-    let dependencies: ObjectBDependencies
+    let keyResolver: DependencyResolver<Key>
 
-    init(dependencies: ObjectBDependencies) {
-        self.dependencies = dependencies
+    init(keyResolver: DependencyResolver<Key>) {
+        self.keyResolver = keyResolver
     }
 
     func assemble(container: Container) {
-        dependencies.assemble(container: container)
-        container.register(ObjectB.self) { resolver in
-            let dependencies = resolver.resolve(ObjectBDependencies.self)!
+        container.register(ObjectB.self) { [keyResolver] resolver in
             print("create object b")
-            return ObjectB(key: dependencies.keyResolver.value)
+            return ObjectB(key: keyResolver.value)
         }
     }
 }
