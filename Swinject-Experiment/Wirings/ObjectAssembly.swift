@@ -12,9 +12,9 @@ import Swinject
 protocol RequiredDependencies: Assembly {}
 
 class DependencyProvider<T> {
-    let factory: (Container) -> T
+    let factory: () -> T
 
-    init(factory: @escaping (Container) -> T) {
+    init(factory: @escaping () -> T) {
         self.factory = factory
     }
 }
@@ -51,9 +51,9 @@ final class ObjectAAssembly: Assembly {
             let dependencies = resolver.resolve(RequiredObjectADependencies.self)!
             print("create object A")
             return ObjectA(
-                key: dependencies.key.factory(container),
-                reporter: dependencies.reporter.factory(container),
-                objectC: dependencies.objectC.factory(container)
+                key: dependencies.key.factory(),
+                reporter: dependencies.reporter.factory(),
+                objectC: dependencies.objectC.factory()
             )
         }
     }
@@ -69,7 +69,7 @@ class RequiredObjectBDependencies: RequiredDependencies {
     func assemble(container: Container) {
         container.register(Key.self) { [key] _ in
             print("create for object b")
-            return key.factory(container)
+            return key.factory()
         }
     }
 }

@@ -19,21 +19,27 @@ class MyDependencyModule {
 
         let finalAssemblies: [Assembly] = [
             ObjectAAssembly(
-                requiredDependencies: RequiredObjectADependencies(key: DependencyProvider<Key>(factory: { container in
-                    return container.resolve(Key.self)!
-                }), reporter: DependencyProvider<Reporter>(factory: { container in
-                    return container.resolve(Reporter.self)!
-                }), objectC: DependencyProvider<ObjectC>(factory: { container in
-                    return container.resolve(ObjectC.self)!
-                }))
+                requiredDependencies: RequiredObjectADependencies(
+                    key: DependencyProvider<Key>(factory: {
+                        return appContainer.resolve(Key.self)!
+                    }),
+                    reporter: DependencyProvider<Reporter>(factory: {
+                        return appContainer.resolve(Reporter.self)!
+                    }),
+                    objectC: DependencyProvider<ObjectC>(factory: {
+                        return appContainer.resolve(ObjectC.self)!
+                    })
+                )
             ),
             ObjectBAssembly(
-                requiredDependencies: RequiredObjectBDependencies(key: DependencyProvider<Key>(factory: { container in
-                    return container.resolve(Key.self)!
-                }))
+                requiredDependencies: RequiredObjectBDependencies(
+                    key: DependencyProvider<Key>(factory: {
+                        return appContainer.resolve(Key.self)!
+                    })
+                )
             )
         ]
-        let finalAssembler = Assembler(finalAssemblies, container: appContainer)
+        let finalAssembler = Assembler(finalAssemblies)
 
         assembler = finalAssembler
     }
