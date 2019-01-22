@@ -26,26 +26,6 @@ class Registry<T> {
     }
 }
 
-class DependencyProvider<T> {
-    let factory: () -> T
-
-    init(factory: @escaping () -> T) {
-        self.factory = factory
-    }
-}
-
-class DependencyResolver<T> {
-    private let resolver: Resolver
-
-    init(_ resolver: Resolver) {
-        self.resolver = resolver
-    }
-
-    var value: T {
-        return resolver.resolve(T.self)!
-    }
-}
-
 final class ObjectAAssembly: Assembly {
 
     let keyRegistry: Registry<Key>
