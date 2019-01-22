@@ -14,13 +14,15 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let objectA = appDelegate.resolver!.resolve(ObjectA.self)!
-        print(objectA.key.value)
-        objectA.reporter.logger.log(message: "Hello world!")
+//        let objectA = appDelegate.resolver!.resolve(ObjectA.self)!
+//        print(objectA.key.value)
+//        objectA.reporter.logger.log(message: "Hello world!")
+//
+//        let objectA2 = appDelegate.resolver!.resolve(ObjectA.self)!
+//        print(objectA2.key.value)
+//        objectA2.reporter.logger.log(message: "Hello world 2!")
 
-        let objectA2 = appDelegate.resolver!.resolve(ObjectA.self)!
-        print(objectA2.key.value)
-        objectA2.reporter.logger.log(message: "Hello world 2!")
+        let objectB = appDelegate.resolver!.resolve(ObjectB.self)!
 
         appDelegate.resolver = nil
         appDelegate.assembler = nil
