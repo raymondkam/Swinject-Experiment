@@ -11,6 +11,20 @@ import Swinject
 
 protocol RequiredDependencies: Assembly {}
 
+class Registry<T> {
+    let dependencyResolver: Resolver
+
+    init(dependencyResolver: Resolver) {
+        self.dependencyResolver = dependencyResolver
+    }
+
+    func register(to container: Container) {
+        container.register(T.self) { [dependencyResolver] _ in
+            return dependencyResolver.resolve(T.self)!
+        }
+    }
+}
+
 class DependencyProvider<T> {
     let factory: () -> T
 
@@ -33,25 +47,28 @@ class DependencyResolver<T> {
 
 final class ObjectAAssembly: Assembly {
 
-    let keyResolver: DependencyResolver<Key>
-    let reporterResolver: DependencyResolver<Reporter>
-    let objectCResolver: DependencyResolver<ObjectC>
+    let keyRegistry: Registry<Key>
+    let reporterRegistry: Registry<Reporter>
+    let objectCRegistry: Registry<ObjectC>
 
-    init(keyResolver: DependencyResolver<Key>,
-         reporterResolver: DependencyResolver<Reporter>,
-         objectCResolver: DependencyResolver<ObjectC>) {
-        self.keyResolver = keyResolver
-        self.reporterResolver = reporterResolver
-        self.objectCResolver = objectCResolver
+    init(keyRegistry: Registry<Key>,
+         reporterRegistry: Registry<Reporter>,
+         objectCRegistry: Registry<ObjectC>) {
+        self.keyRegistry = keyRegistry
+        self.reporterRegistry = reporterRegistry
+        self.objectCRegistry = objectCRegistry
     }
 
     func assemble(container: Container) {
-        container.register(ObjectA.self) { [keyResolver, reporterResolver, objectCResolver] resolver in
+        keyRegistry.register(to: container)
+        reporterRegistry.register(to: container)
+        objectCRegistry.register(to: container)
+        container.register(ObjectA.self) { resolver in
             print("create object A")
             return ObjectA(
-                key: keyResolver.value,
-                reporter: reporterResolver.value,
-                objectC: objectCResolver.value
+                key: resolver.resolve(Key.self)!,
+                reporter: resolver.resolve(Reporter.self)!,
+                objectC: resolver.resolve(ObjectC.self)!
             )
         }
     }
@@ -59,14 +76,14 @@ final class ObjectAAssembly: Assembly {
 
 final class ObjectBAssembly: Assembly {
 
-    let keyRegistration: (Container) -> ()
+    let keyRegistry: Registry<Key>
 
-    init(keyRegistration: @escaping (Container) -> ()) {
-        self.keyRegistration = keyRegistration
+    init(keyRegistry: Registry<Key>) {
+        self.keyRegistry = keyRegistry
     }
 
     func assemble(container: Container) {
-        keyRegistration(container)
+        keyRegistry.register(to: container)
         container.register(ObjectB.self) { resolver in
             print("create object b")
             return ObjectB(key: resolver.resolve(Key.self)!)
